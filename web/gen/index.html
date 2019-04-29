@@ -1,0 +1,186 @@
+<html charset="utf8">
+<body>
+<script src="hello.js"></script>
+<script>
+
+
+function functionExists(f) {
+  return f && typeof f === "function";
+}
+
+function isNumber(n) {
+  return typeof n === "number";
+}
+
+function testFunctionBinding() {
+  assert(functionExists(Module._new_mandle));
+  assert(functionExists(Module._getBuffer));
+}
+
+window.MAND = {};
+window.MODU = {};
+window.CTXM = {};
+var width=300;
+var height=300;
+
+function render(){
+    var imgData = MODU._getBuffer(MAND);
+    var imageData = window.CTXM.getImageData(0,0,width,height);
+    for (var i=0; i < width * height * 4; i += 4) 
+    {
+        let pixelIndex = imgData + i;
+        
+        imageData.data[i] = Module.HEAPU8[pixelIndex];
+        imageData.data[i+1] =Module.HEAPU8[pixelIndex+1]
+        imageData.data[i+2] = Module.HEAPU8[pixelIndex+2];
+        imageData.data[i+3] = Module.HEAPU8[pixelIndex+3];
+    }
+    window.CTXM.putImageData(imageData,0,0);
+}
+
+document.body.onkeypress = function(oEv) {
+    switch(oEv.key) {
+        case "=":
+        // zoom in
+        var cx = MODU._getCenterX(MAND);
+        var cy = MODU._getCenterY(MAND);
+        
+        var oX = MODU._getOriginX(MAND);
+        var oY = MODU._getOriginY(MAND);
+        
+        var s = MODU._getScale(MAND);
+        
+        var newScale = s * 0.95;
+        
+        var newCenterX = oX + (newScale * 0.5);
+        var newCenterY = oY + (newScale * 0.5);
+        
+        
+        var dX = cx - newCenterX;
+        var dY = cy - newCenterY;
+        MODU._paint(MAND,oX + dX, oY + dY,newScale);
+        render();
+        break;
+        
+        case "-":
+        
+           var cx = MODU._getCenterX(MAND);
+        var cy = MODU._getCenterY(MAND);
+        
+        var oX = MODU._getOriginX(MAND);
+        var oY = MODU._getOriginY(MAND);
+        
+        var s = MODU._getScale(MAND);
+        
+        var newScale = s * 1.05;
+        
+        var newCenterX = oX + (newScale * 0.5);
+        var newCenterY = oY + (newScale * 0.5);
+        
+        
+        var dX = cx - newCenterX;
+        var dY = cy - newCenterY;
+        MODU._paint(MAND,oX + dX, oY + dY,newScale);
+        render();
+        break;
+        
+        default:
+        break;
+    }
+}
+
+
+
+Module.onRuntimeInitialized = function() {
+  testFunctionBinding();
+
+  window.MODU = Module;
+  var m = Module._new_mandle(width,height);
+  window.MAND = m;
+  var imgData = Module._getBuffer(m);
+  console.log(Module.HEAPU8[imgData]);
+  
+  
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
+  window.CTXM = ctx;
+  canvas.onclick = (oEvent) => {
+    var x = oEvent.offsetX;
+    var y = oEvent.offsetY;
+    
+    var cX = MODU._getCenterX(MAND);
+    var cY = MODU._getCenterY(MAND);
+
+    var mX = MODU._getXValue(MAND,x);
+    var mY = MODU._getYValue(MAND,y);
+    
+    var oX = MODU._getOriginX(MAND);
+    var oY = MODU._getOriginY(MAND);
+    
+    
+    var s = MODU._getScale(MAND);
+    
+    var pX = oX + ((x/width) * s);
+    var pY = oY + ((y/height) * s);
+    
+    var dX = mX - cX;
+    var dY = mY - cY;
+    
+    console.log(dX + ", " + dY);
+    
+    
+    MODU._paint(MAND,oX+dX, oY+dY,s);
+    
+    render();
+    
+    //debugger;
+    
+  }
+  
+  // manipulate image using javascript ...paint a checkered background
+  var imageData = ctx.getImageData(0,0,width,height);
+  for (var i=0; i < width * height * 4; i += 4) 
+  {
+    imageData.data[i] = 255;  //red
+    imageData.data[i+1] = 0; //green
+    imageData.data[i+2] = 0; //blue
+    imageData.data[i+3] = 70; // alpha
+  }
+  ctx.putImageData(imageData,0,0); 
+  
+  
+  // transfer the image from our c++ Call to the image data ... paint a solid square
+  const copyPixels = (ctx) => {
+    for (var i=0; i < width * height * 4; i += 4) 
+    {
+        let pixelIndex = imgData + i;
+        
+        imageData.data[i] = Module.HEAPU8[pixelIndex];
+        imageData.data[i+1] =Module.HEAPU8[pixelIndex+1]
+        imageData.data[i+2] = Module.HEAPU8[pixelIndex+2];
+        imageData.data[i+3] = Module.HEAPU8[pixelIndex+3];
+    }
+
+    
+    ctx.putImageData(imageData,0,0);
+  }
+  
+  copyPixels(ctx);
+
+  
+ // window.setInterval(()=>{
+   Module._paint(m,-1.75,-1.25,2.5);
+   
+    copyPixels(ctx);
+  //},0);
+  //debugger;
+  
+  
+  
+}
+</script>
+
+<canvas id="myCanvas" width="300" height="300">
+</canvas>
+</body>
+</html>
