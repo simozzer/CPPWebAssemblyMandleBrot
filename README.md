@@ -9,11 +9,12 @@ To get this up and runnning I had to install a basic gcc/g++ stack, with autotoo
 
 I basically followed instuctions here to get emsdk installed on openSuse Leap https://webassembly.org/getting-started/developers-guide/
 
-To build:
 
+To build:
 sh ./build.sh
 
-To run
+
+To run:
 sh ./serve.sh
 
 
