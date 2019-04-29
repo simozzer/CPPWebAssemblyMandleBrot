@@ -5,7 +5,7 @@ Just a basic play area for some basic stuff that I'm getting into whilst learnin
 
 The code is bad, but it works, just needed somewhere to park my ideas whilst moving between PCs. This might become a bit of a non-specific playground.
 
-To get the up and runnning I had to install a basic gcc/g++ stack, with autotools, cmake and git.
+To get this up and runnning I had to install a basic gcc/g++ stack, with autotools, cmake and git.
 
 I basically followed instuctions here to get emsdk installed on openSuse Leap https://webassembly.org/getting-started/developers-guide/
 
